@@ -18,34 +18,6 @@ public class Game
 	{	
 	        WebSocketClient client = new WebSocketClient();
 	        SocketHandler socket = new SocketHandler();
-	        
-        	/*long xx=System.currentTimeMillis();
-        	int yy = 0;
-	        while(true)
-	        {
-	        	if(System.currentTimeMillis()-xx>700 && yy < 30)
-	        	{
-	        		yy++;
-			        new Thread(new Runnable() {				
-						@Override
-						public void run() {					
-					        try {	        	
-					            client.start();
-					            URI serverURI = new URI(serverIP);
-					            ClientUpgradeRequest request = new ClientUpgradeRequest();
-					            request.setHeader("Origin", "http://agar.io");
-					            client.connect(socket, serverURI, request);
-					            System.out.println("Trying to connect <"+serverIP+">");
-					            socket.awaitClose(7, TimeUnit.DAYS);
-					        } catch (Throwable t) {
-					            t.printStackTrace();
-					        }
-						}
-					}).start();
-			        xx=System.currentTimeMillis();
-	        	}
-	        }*/
-	       //cells.add(new Cell(0,0,10));
 	        new Thread(new Runnable() {				
 				@Override
 				public void run() {					

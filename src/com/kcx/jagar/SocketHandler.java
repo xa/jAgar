@@ -17,9 +17,6 @@ import com.kcx.jagar.packet.PacketC016UpdateCells;
 import com.kcx.jagar.packet.PacketS000SetNick;
 import com.kcx.jagar.packet.PacketS016Move;
  
-/**
- * Basic Echo Client Socket
- */
 @WebSocket(maxTextMessageSize = 2^32)
 public class SocketHandler {
  
