@@ -27,7 +27,7 @@ public class Main
 		try
 		{
 			game.tick();
-		}catch(Exception e){};
+		}catch(Exception e){e.printStackTrace();};//TODO: error handling
 		frame.render();
 		game.afterRender();
 	}
