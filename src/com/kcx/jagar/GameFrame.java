@@ -5,8 +5,6 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-
 import javax.swing.JFrame;
 
 public class GameFrame extends JFrame implements MouseListener
@@ -14,9 +12,9 @@ public class GameFrame extends JFrame implements MouseListener
 	private static long startTime = System.currentTimeMillis();
 	private static long frames = 0;
 	private static final long serialVersionUID = 3637327282806739934L;
-	private GameCanvas canvas;
+	public GameCanvas canvas;
 	public static double mouseX, mouseY;
-	public static Dimension size = new Dimension(1150, 700);
+	public static Dimension size = new Dimension(800, 600);
 	
 	public GameFrame()
 	{

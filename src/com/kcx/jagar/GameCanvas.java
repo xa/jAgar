@@ -34,9 +34,23 @@ public class GameCanvas extends JPanel
 		{		
 			for(Cell cell : Game.cells)
 			{
-				cell.render(g);
+				if(cell!=null)
+					cell.render(g);
 			}
 		}catch(ConcurrentModificationException e){System.err.println("ERR > TODO: fix this");}
+		
+		g.setColor(Color.WHITE);
+		
+		int i=0;
+		
+		for(String s : Game.leaderboard)
+		{
+			if(s != null)
+			{
+				g.drawString(s, GameFrame.size.width-140, 15 + 13*i);
+			}
+			i++;
+		}
 		
 		g.dispose();
 		

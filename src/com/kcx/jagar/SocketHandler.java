@@ -9,18 +9,20 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketFrame;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 
 import com.kcx.jagar.packet.PacketC016UpdateCells;
+import com.kcx.jagar.packet.PacketC032CenterCell;
+import com.kcx.jagar.packet.PacketC049Leaderboard;
+import com.kcx.jagar.packet.PacketC064MapSize;
 import com.kcx.jagar.packet.PacketS000SetNick;
-import com.kcx.jagar.packet.PacketS016Move;
  
 @WebSocket(maxTextMessageSize = 2^32)
 public class SocketHandler {
  
-    private final CountDownLatch closeLatch; 
+    private final CountDownLatch closeLatch;
+	public Session session; 
     
     public SocketHandler()
     {
@@ -41,6 +43,8 @@ public class SocketHandler {
     @OnWebSocketConnect
     public void onConnect(Session session) throws IOException
     {
+    	this.session = session;
+    	
         System.out.println("Connected!");
         
         ByteBuffer buf = ByteBuffer.allocate(5);
@@ -53,7 +57,7 @@ public class SocketHandler {
         buf.putInt(1, 0x33182283);
         session.getRemote().sendBytes(buf);
         
-        new PacketS000SetNick("goofy-"+System.currentTimeMillis()/10).write(session);        
+        new PacketS000SetNick("królik to siki").write(session);        
     }
  
 	@OnWebSocketFrame
@@ -63,6 +67,18 @@ public class SocketHandler {
         if(id == 16)
         {
         	new PacketC016UpdateCells(frame.getPayload());
+        }
+        if(id == 49)
+        {
+        	new PacketC049Leaderboard(frame.getPayload());
+        }
+        if(id == 32)
+        {
+        	new PacketC032CenterCell(frame.getPayload());
+        }
+        if(id == 64)
+        {
+        	new PacketC064MapSize(frame.getPayload());
         }
     }
 }

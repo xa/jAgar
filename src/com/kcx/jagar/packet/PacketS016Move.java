@@ -2,26 +2,43 @@ package com.kcx.jagar.packet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.eclipse.jetty.websocket.api.Session;
 
 public class PacketS016Move
 {
-	public double x;
-	public double y;
+	public float x;
+	public float y;
 	
-	public PacketS016Move(double x, double y)
+	public PacketS016Move(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
 	}
 	
+	public static byte[] toByteArray(float value)
+	{
+	    byte[] bytes = new byte[4];
+	    ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).putInt((int)value);
+	    return bytes;
+	}
+	
 	public void write(Session session) throws IOException
 	{
 		ByteBuffer buffer = ByteBuffer.allocate(13);
-		buffer.put(0, (byte)16);
-		buffer.putFloat(1, 600f);
-		buffer.putFloat(5, 600f);
+		buffer.put(0,(byte)16);
+		
+		buffer.put(1,toByteArray(x)[0]);
+		buffer.put(2,toByteArray(x)[1]);
+		buffer.put(3,toByteArray(x)[2]);
+		buffer.put(4,toByteArray(x)[3]);
+		
+		buffer.put(5,toByteArray(y)[0]);
+		buffer.put(6,toByteArray(y)[1]);
+		buffer.put(7,toByteArray(y)[2]);
+		buffer.put(8,toByteArray(y)[3]);
+		
 		buffer.putInt(9, 0);
         session.getRemote().sendBytes(buffer);
 	}

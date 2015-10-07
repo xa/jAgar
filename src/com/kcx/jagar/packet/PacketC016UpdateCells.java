@@ -10,33 +10,99 @@ public class PacketC016UpdateCells
 {
 	public PacketC016UpdateCells(ByteBuffer b)
 	{
-		try
-		{
-	    b.order(ByteOrder.LITTLE_ENDIAN);
-		byte packetId = b.get(0);
+		b.order(ByteOrder.LITTLE_ENDIAN);
 		short destroy = b.getShort(1);
 		int offset = 3;
-		offset+=0;
+
+		for(int i=0;i<destroy;i++)
+		{
+			for(Cell c : Game.cells)
+			{
+				if(c!=null)
+				{
+					if(c.id == b.getInt(offset+4))
+					{
+						c.x=-10000;
+						System.out.println("Removing " + c.id + " <" + c.name + ">");
+						break;
+					}
+				}
+			}
+			offset+=8;
+		}
+		
+		try
+		{
+			offset = addCell(offset, b);
+		}catch(IndexOutOfBoundsException e){}
+		
+		int destroyCells = b.getInt(offset);
+		
+		offset+=4;
+		
+		for(int i=0;i<destroyCells;i++)
+		{
+			for(Cell c : Game.cells)
+			{
+				System.out.println(b.getInt(offset));
+				if(c!=null)
+				{
+					if(c.id == b.getInt(offset))
+					{
+						c.x=-10000;
+						System.out.println("Removing " + c.id + " <" + c.name + ">");
+						break;
+					}
+				}
+			}
+			offset+=4;
+		}		
+	}
+
+	private int addCell(int offset, ByteBuffer b)
+	{
 		int cellID = b.getInt(offset);
 		int x = b.getInt(offset+4);
 		int y = b.getInt(offset+8);
 		short size = b.getShort(offset+12);
 		
+		byte red = b.get(offset+14);
+		byte green = b.get(offset+15);
+		byte blue = b.get(offset+16);
+		
 		boolean flag = false;
 		
-		for(Cell c : Game.cells)
+		for(int i=0;i<Game.cellsNumber;i++)
 		{
-			if(c.id == cellID)
+			Cell c = Game.cells[i];
+			if(c != null)
 			{
-				flag = true;
-			}		
-		}	
-
+				if(c.id == cellID)
+				{
+					flag = true;
+				}
+			}
+		}
+		
+		byte flags = b.get(offset+17);
+		if(flags==1){offset+=0;}
+		if(flags==2){offset+=8;}
+		if(flags==3){offset+=16;}
+		
+		offset+=18;
+		String name = "";
+        while(b.getShort(offset)!=0)
+        {
+        	name += b.getChar(offset);
+        	offset += 2;
+        }
+        
 		if(!flag)
 		{
-			System.out.println("Adding new cell "+cellID);
-			Cell cell = new Cell(x, y, size, cellID);
-			Game.cells.add(cell);
+			System.out.println("Adding new cell " + cellID + " <" + name + ">");
+			Cell cell = new Cell(x, y, size, cellID, name);
+			cell.setColor(red, green, blue);
+			Game.addCell(cell);
 			
 			if(cellID==4)
 			{
@@ -44,20 +110,25 @@ public class PacketC016UpdateCells
 			}
 		}else
 		{
-			for(Cell cell : Game.cells)
+			for(Cell cell : Game.cells)		
 			{
-				if(cell.id == cellID)
-				{
-					cell.x = x;
-					cell.y = y;
-					cell.size = size;
+				if(cell!=null)
+				{				
+					if(cell.id == cellID)
+					{
+						cell.x = x;
+						cell.y = y;
+						cell.size = size;
+						cell.setColor(red, green, blue);
+					}
 				}
 			}
 		}
-		
-		System.out.println("   x:"+x);
-		System.out.println("   y:"+y);
-		System.out.println("   size:"+size);
-		}catch(IndexOutOfBoundsException e){}
+		offset+=2;
+		if(b.getInt(offset)!=0)
+		{
+			offset = addCell(offset, b);
+		}
+		return offset;
 	}
 }

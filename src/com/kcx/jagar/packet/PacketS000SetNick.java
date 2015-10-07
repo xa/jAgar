@@ -1,7 +1,6 @@
 package com.kcx.jagar.packet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 import org.eclipse.jetty.websocket.api.Session;
