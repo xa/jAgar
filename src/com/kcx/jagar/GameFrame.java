@@ -54,7 +54,6 @@ public class GameFrame extends JFrame implements MouseListener
 	private Point getMouseLocation()
 	{
 		int x = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x);
-		//TODO FIX MOUSE
 		int y = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-24);
 	    return new Point(x, y);
 	}

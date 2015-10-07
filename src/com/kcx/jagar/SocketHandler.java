@@ -57,7 +57,7 @@ public class SocketHandler {
         buf.putInt(1, 0x33182283);
         session.getRemote().sendBytes(buf);
         
-        new PacketS000SetNick("królik to siki").write(session);        
+        new PacketS000SetNick("-Testing-").write(session);        
     }
  
 	@OnWebSocketFrame

@@ -119,6 +119,7 @@ public class PacketC016UpdateCells
 						cell.x = x;
 						cell.y = y;
 						cell.size = size;
+						cell.name = name;
 						cell.setColor(red, green, blue);
 					}
 				}
