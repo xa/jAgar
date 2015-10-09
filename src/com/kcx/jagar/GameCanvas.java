@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.ConcurrentModificationException;
 
 import javax.swing.JPanel;
@@ -13,7 +14,7 @@ import javax.swing.JPanel;
 public class GameCanvas extends JPanel
 {
 	private static final long serialVersionUID = 5570080027060608254L;
-	private Image screen;
+	private BufferedImage screen;
 
 	public GameCanvas()
 	{
@@ -30,14 +31,14 @@ public class GameCanvas extends JPanel
 		g.setColor(new Color(20,20,20));
 		g.fillRect(0, 0, GameFrame.size.width, GameFrame.size.height);		
 
-		g.setColor(new Color(80,80,80));
+		/*g.setColor(new Color(80,80,80));
 		
 		int pX = 0, pY = 0;
-		
-/*		if(Game.player != null)
+		if(Game.player != null)
 		{
-			pX = (int)(Game.player.xRender*Game.zoom);
-			pY = (int)(Game.player.yRender*Game.zoom);
+			int size = (int)((Math.round(Game.player.sizeRender*2))*Game.zoom);
+			pX = (int)(Game.player.xRender*Game.zoom+size);
+			pY = (int)(Game.player.yRender*Game.zoom+size);
 		
 			for(double i=Game.minSizeX;i<Game.maxSizeX;i+=100*Game.zoom)
 			{				
@@ -51,16 +52,14 @@ public class GameCanvas extends JPanel
 			}			
 		}*/
 
-		try
-		{		
-			for(Cell cell : Game.cells)
+		for(int i2=0;i2<Game.cellsNumber;i2++)
+		{
+			Cell cell = Game.cells[i2];
+			if(cell!=null)
 			{
-				if(cell!=null)
-				{
-					cell.render(g);
-				}
+				cell.render(g);
 			}
-		}catch(ConcurrentModificationException e){System.err.println("ERR > TODO: fix this");}
+		}
 		
 		g.setColor(Color.WHITE);
 		
@@ -70,10 +69,12 @@ public class GameCanvas extends JPanel
 		{
 			if(s != null)
 			{
-				g.drawString(s, GameFrame.size.width-140, 15 + 13*i);
+				g.drawString(s, GameFrame.size.width-140, 15+15*(i+1));
 			}
 			i++;
 		}
+
+		g.drawString("Score: "+Game.score, 20, 30);
 		
 		g.dispose();
 		

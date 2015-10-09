@@ -10,19 +10,25 @@ public class PacketC016UpdateCells
 {
 	public PacketC016UpdateCells(ByteBuffer b)
 	{
+		if(b==null)return;
 		b.order(ByteOrder.LITTLE_ENDIAN);
 		short destroy = b.getShort(1);
 		int offset = 3;
 
 		for(int i=0;i<destroy;i++)
 		{
-			for(Cell c : Game.cells)
+			for(int i2=0;i2<Game.cellsNumber;i2++)
 			{
+				Cell c = Game.cells[i2];
 				if(c!=null)
 				{
 					if(c.id == b.getInt(offset+4))
 					{
-						c.x=-10000;
+						Game.cells[i2] = null;
+						if(Game.player.contains(c))
+						{
+							Game.player.remove(c);
+						}
 						System.out.println("Removing " + c.id + " <" + c.name + ">");
 						break;
 					}
@@ -42,15 +48,19 @@ public class PacketC016UpdateCells
 		
 		for(int i=0;i<destroyCells;i++)
 		{
-			for(Cell c : Game.cells)
+			for(int i2=0;i2<Game.cellsNumber;i2++)
 			{
-				System.out.println(b.getInt(offset));
+				Cell c = Game.cells[i2];
 				if(c!=null)
 				{
 					if(c.id == b.getInt(offset))
 					{
-						c.x=-10000;
-						System.out.println("Removing " + c.id + " <" + c.name + ">");
+						Game.cells[i2] = null;
+						if(Game.player.contains(c))
+						{
+							Game.player.remove(c);
+						}
+						System.out.println("Removing(2) " + c.id + " <" + c.name + ">");
 						break;
 					}
 				}
@@ -85,7 +95,8 @@ public class PacketC016UpdateCells
 		}
 		
 		byte flags = b.get(offset+17);
-		if(flags==1){offset+=0;}
+		boolean virus = false;
+		if(flags==1){offset+=0;virus = true;}
 		if(flags==2){offset+=8;}
 		if(flags==3){offset+=16;}
 		
@@ -102,12 +113,8 @@ public class PacketC016UpdateCells
 			System.out.println("Adding new cell " + cellID + " <" + name + ">");
 			Cell cell = new Cell(x, y, size, cellID, name);
 			cell.setColor(red, green, blue);
-			Game.addCell(cell);
-			
-			if(cellID==4)
-			{
-				Game.player = cell;
-			}
+			cell.virus = virus;
+			Game.addCell(cell);			
 		}else
 		{
 			for(Cell cell : Game.cells)		
@@ -120,6 +127,7 @@ public class PacketC016UpdateCells
 						cell.y = y;
 						cell.size = size;
 						cell.name = name;
+						cell.virus = virus;
 						cell.setColor(red, green, blue);
 					}
 				}
