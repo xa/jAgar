@@ -57,9 +57,13 @@ public class GameCanvas extends JPanel
 			Cell cell = Game.cells[i2];
 			if(cell!=null)
 			{
-				cell.render(g);
+				cell.render(g, 1);
+				if(cell.mass>9)
+				{
+					cell.render(g, 0.82f);
+				}
 			}
-		}
+		}		
 		
 		g.setColor(Color.WHITE);
 		
@@ -75,6 +79,7 @@ public class GameCanvas extends JPanel
 		}
 
 		g.drawString("Score: "+Game.score, 20, 30);
+		g.drawString("Player cells: "+Game.player.size(), 20, 45);		
 		
 		g.dispose();
 		

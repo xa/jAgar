@@ -29,7 +29,7 @@ public class PacketC016UpdateCells
 						{
 							Game.player.remove(c);
 						}
-						System.out.println("Removing " + c.id + " <" + c.name + ">");
+					//	System.out.println("Removing " + c.id + " <" + c.name + ">");
 						break;
 					}
 				}
@@ -60,7 +60,7 @@ public class PacketC016UpdateCells
 						{
 							Game.player.remove(c);
 						}
-						System.out.println("Removing(2) " + c.id + " <" + c.name + ">");
+				//		System.out.println("Removing(2) " + c.id + " <" + c.name + ">");
 						break;
 					}
 				}
@@ -110,11 +110,12 @@ public class PacketC016UpdateCells
         
 		if(!flag)
 		{
-			System.out.println("Adding new cell " + cellID + " <" + name + ">");
+			//System.out.println("Adding new cell " + cellID + " <" + name + ">");
 			Cell cell = new Cell(x, y, size, cellID, name);
 			cell.setColor(red, green, blue);
-			cell.virus = virus;
-			Game.addCell(cell);			
+			cell.virus = virus;			
+			Game.addCell(cell);
+			cell.tick();
 		}else
 		{
 			for(Cell cell : Game.cells)		

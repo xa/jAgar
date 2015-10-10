@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
+import com.kcx.jagar.packet.PacketS000SetNick;
 import com.kcx.jagar.packet.PacketS016Move;
 
 public class Game
@@ -24,7 +25,9 @@ public class Game
 	public static ArrayList<Cell> player = new ArrayList<Cell>();
 	public static String[] leaderboard = new String[10];
 	public static double maxSizeX, maxSizeY, minSizeX, minSizeY;
-	public static int playerID;
+	public static ArrayList<Integer> playerID = new ArrayList<Integer>();
+	public static float followX;
+	public static float followY;
 	public static double zoom;
 	private double zoomm=-1;
 	public static int score;
@@ -45,7 +48,6 @@ public class Game
 			System.out.println(serverToken);
 			sc.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}			
 			
@@ -111,16 +113,38 @@ public class Game
 	
 	public void tick() throws IOException
 	{
-		for(Cell c : Game.cells)
+		if(Game.player.size()==0)
 		{
-			if(c!=null)
+			if(socket != null && socket.session != null)
 			{
-				if(c.id == playerID && !player.contains(c))
+				if(socket.session.isOpen())
 				{
-					player.add(c);
+					new PacketS000SetNick(Game.nick).write(socket.session);
 				}
 			}
-		}		
+		}
+		
+		ArrayList<Integer> toRemove = new ArrayList<Integer>();
+		
+		for(int i : playerID)
+		{
+			for(Cell c : Game.cells)
+			{
+				if(c!=null)
+				{
+					if(c.id == i && !player.contains(c))
+					{
+						player.add(c);
+						toRemove.add(i);
+					}
+				}
+			}
+		}
+		
+		for(int i : toRemove)
+		{
+			playerID.remove(playerID.indexOf(i));
+		}
 		
 		if(socket.session != null && player.size()>0)
 		{		
@@ -150,11 +174,13 @@ public class Game
 			{
 				float avgX = 0;
 				float avgY = 0;
+				totalSize = 0;
 				
 				for(Cell c : Game.player)
 				{
-					avgX += c.xRender;
-					avgY += c.yRender;
+					avgX += c.x;
+					avgY += c.y;
+					totalSize += c.size;
 				}
 				
 				avgX /= Game.player.size();
@@ -162,8 +188,10 @@ public class Game
 				
 				float x = avgX;
 				float y = avgY;
-				x += (float) (GameFrame.mouseX - GameFrame.size.width/2);
-				y += (float) (GameFrame.mouseY - GameFrame.size.height/2);
+				x += (float) ((GameFrame.mouseX - GameFrame.size.width/2) / zoom);
+				y += (float) ((GameFrame.mouseY - GameFrame.size.height/2) / zoom);
+				followX = x;
+				followY = y;
 				(new PacketS016Move(x,y)).write(socket.session);
 			}
 		}
@@ -176,60 +204,57 @@ public class Game
 			}
 		}
 		
-		if(System.currentTimeMillis()%100 == 0)
-		{
-			Arrays.sort(cells, new Comparator<Cell>() {	
-				@Override
-				public int compare(Cell o1, Cell o2) {
-					if(o1 != null && o2 != null)
-					{
-						if(o1.size > o2.size)
-							return 1;
-						if(o1.size < o2.size)
-							return -1;
-						if(o1.size == o2.size)
-							return 0;
-					}else
-					{
-						return 0;
-					}
+		/*Arrays.sort(cells, new Comparator<Cell>() {	
+			@Override
+			public int compare(Cell o1, Cell o2) {
+				if(o1 != null && o2 != null)
+				{
+					return Float.compare(o1.size, o2.size);
+				}else
+				{
 					return 0;
 				}
-			});
-		}
+			}
+		});*/
 	}
 	
 	public static void pressMouse(int x, int y, int button)
 	{
-		//TODO Keyboard
-		if(button==1) //SPACE
+		if(socket != null && socket.session != null)
 		{
-	        ByteBuffer buf = ByteBuffer.allocate(5);
-	        buf.put(0, (byte)17);
-	        try {
-				socket.session.getRemote().sendBytes(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if(button==2) //Q
-		{
-	        ByteBuffer buf = ByteBuffer.allocate(5);
-	        buf.put(0, (byte)18);
-	        try {
-				socket.session.getRemote().sendBytes(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if(button==3) //W
-		{
-	        ByteBuffer buf = ByteBuffer.allocate(5);
-	        buf.put(0, (byte)21);
-	        try {
-				socket.session.getRemote().sendBytes(buf);
-			} catch (IOException e) {
-				e.printStackTrace();
+			if(socket.session.isOpen())
+			{
+				//TODO Keyboard
+				if(button==1) //SPACE
+				{
+			        ByteBuffer buf = ByteBuffer.allocate(5);
+			        buf.put(0, (byte)17);
+			        try {
+						socket.session.getRemote().sendBytes(buf);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if(button==2) //Q
+				{
+			        ByteBuffer buf = ByteBuffer.allocate(5);
+			        buf.put(0, (byte)18);
+			        try {
+						socket.session.getRemote().sendBytes(buf);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				if(button==3) //W
+				{
+			        ByteBuffer buf = ByteBuffer.allocate(5);
+			        buf.put(0, (byte)21);
+			        try {
+						socket.session.getRemote().sendBytes(buf);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

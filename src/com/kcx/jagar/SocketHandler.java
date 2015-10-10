@@ -13,6 +13,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 
 import com.kcx.jagar.packet.PacketC016UpdateCells;
+import com.kcx.jagar.packet.PacketC020ResetLevel;
 import com.kcx.jagar.packet.PacketC032CenterCell;
 import com.kcx.jagar.packet.PacketC049Leaderboard;
 import com.kcx.jagar.packet.PacketC064MapSize;
@@ -21,7 +22,8 @@ import com.kcx.jagar.packet.PacketS016Move;
 import com.kcx.jagar.packet.PacketS080Auth;
  
 @WebSocket(maxTextMessageSize = 2^32)
-public class SocketHandler {
+public class SocketHandler
+{
  
     private final CountDownLatch closeLatch;
 	public Session session;
@@ -76,7 +78,7 @@ public class SocketHandler {
         long oldTime = 0;        
         while(true && this.bot && session.isOpen() && Game.player.get(0)!=null)
         { 
-        	if(System.currentTimeMillis() - oldTime>500)
+        	if(System.currentTimeMillis() - oldTime>1500)
         	{
         		new PacketS000SetNick(Game.nick + " bot").write(session);
         		{
@@ -119,6 +121,10 @@ public class SocketHandler {
 	        if(id == 64)
 	        {
 	        	new PacketC064MapSize(frame.getPayload());
+	        }
+	        if(id == 20)
+	        {
+	        	new PacketC020ResetLevel(frame.getPayload());
 	        }
 		}
     }
