@@ -37,7 +37,7 @@ public class Game
 	
 	public static String serverIP = "ws://" + (JOptionPane.showInputDialog(null, "Ip (leave blank for official server)", ""));
 	public static String serverToken = "";
-	public static String nick = (JOptionPane.showInputDialog(null, "Nick", ""));
+	public static String nick = (JOptionPane.showInputDialog(null, "Nick", "jAgar"));
 	public static int bots = 0;
 	public static int spawnPlayer = -1;
 	public static HashMap<Integer, String> cellNames = new HashMap<Integer, String>();
