@@ -14,7 +14,7 @@ public class GameFrame extends JFrame implements MouseListener
 	private static final long serialVersionUID = 3637327282806739934L;
 	public GameCanvas canvas;
 	public static double mouseX, mouseY;
-	public static Dimension size = new Dimension(800, 600);
+	public static Dimension size = new Dimension(1100, 700);
 	
 	public GameFrame()
 	{

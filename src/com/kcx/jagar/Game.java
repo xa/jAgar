@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -119,6 +120,10 @@ public class Game
 			{
 				if(socket.session.isOpen())
 				{
+					Game.player.clear();
+					Game.cells = new Cell[Game.cells.length];
+					System.out.println("Reseting level. (death)");
+
 					new PacketS000SetNick(Game.nick).write(socket.session);
 				}
 			}
@@ -128,17 +133,20 @@ public class Game
 		
 		for(int i : playerID)
 		{
-			for(Cell c : Game.cells)
+			try
 			{
-				if(c!=null)
+				for(Cell c : Game.cells)
 				{
-					if(c.id == i && !player.contains(c))
+					if(c!=null)
 					{
-						player.add(c);
-						toRemove.add(i);
+						if(c.id == i && !player.contains(c))
+						{
+							player.add(c);
+							toRemove.add(i);
+						}
 					}
 				}
-			}
+			}catch(ConcurrentModificationException e){}
 		}
 		
 		for(int i : toRemove)
@@ -204,18 +212,29 @@ public class Game
 			}
 		}
 		
-		/*Arrays.sort(cells, new Comparator<Cell>() {	
-			@Override
-			public int compare(Cell o1, Cell o2) {
-				if(o1 != null && o2 != null)
+		if(System.currentTimeMillis()%100 == 0)
+		{
+			Arrays.sort(cells, new Comparator<Cell>()
+			{	
+				@Override
+				public int compare(Cell o1, Cell o2)
 				{
+					if (o1 == null && o2 == null)
+					{
+			            return 0;
+			        }
+					if (o1 == null)
+					{
+						return 1;
+					}
+					if (o2 == null)
+					{
+						return -1;
+				    }
 					return Float.compare(o1.size, o2.size);
-				}else
-				{
-					return 0;
 				}
-			}
-		});*/
+			});
+		}
 	}
 	
 	public static void pressMouse(int x, int y, int button)

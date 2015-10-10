@@ -13,6 +13,6 @@ public class PacketC020ResetLevel
 		b.order(ByteOrder.LITTLE_ENDIAN);
 		Game.player.clear();
 		Game.cells = new Cell[Game.cells.length];
-		System.out.println("Reseting level.");
+		System.out.println("Reseting level. (packet)");
 	}
 }
