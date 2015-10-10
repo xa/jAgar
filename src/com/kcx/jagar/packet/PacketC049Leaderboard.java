@@ -22,10 +22,15 @@ public class PacketC049Leaderboard
 	        while(b.getShort(offset)!=0)
 	        {
 	        	nick += b.getChar(offset);
-	        	offset += 2;
+	        	offset += 2;	        	       
 	        }
 	        
 	        offset+=6;
+	        
+	        if(nick.length()==0)
+	        {
+	        	nick = "An unnamed cell";
+	        }
 	        
 			Game.leaderboard[i] = (i+1)+". "+nick;
 		}

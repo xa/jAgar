@@ -66,8 +66,7 @@ public class SocketHandler
 
         if(!this.bot)
         {
-        	System.out.println("Spawning player "+Game.nick);
-        	new PacketS000SetNick(Game.nick).write(session);
+        	Game.spawnPlayer = 100;
         }
         if(this.bot)
         {

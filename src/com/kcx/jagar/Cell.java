@@ -14,7 +14,7 @@ public class Cell
 	public int id;
 	public float size;
 	private int r, g, b;
-	public String name;
+	public String name = "";
 	public float sizeRender;
 	public double xRender;
 	public double yRender;
@@ -22,13 +22,12 @@ public class Cell
 	public boolean virus = false;
 	private float rotation = 0;
 	
-	public Cell(double x, double y, float size, int id, String name)
+	public Cell(double x, double y, float size, int id)
 	{
 		this.x = x;
 		this.y = y;
 		this.size = size;
-		this.id = id;
-		this.name = name;
+		this.id = id;		
 		this.xRender = this.x;
 		this.yRender = this.y;
 		this.sizeRender = this.size;
@@ -41,6 +40,11 @@ public class Cell
 		this.sizeRender -= (this.sizeRender - size)/15f;
 		this.mass = Math.round((this.sizeRender * this.sizeRender) / 100);
 		this.rotation += (1f/(Math.max(this.mass,20)*2));
+		
+		if(Game.cellNames.containsKey(this.id))
+		{
+			this.name = Game.cellNames.get(this.id);
+		}
 	}
 
 	public void render(Graphics2D g, float scale)
@@ -50,7 +54,7 @@ public class Cell
 			Color color = new Color(this.r, this.g, this.b);
 			if(scale==1)
 			{
-				color = new Color((int)(this.r/1.5), (int)(this.g/1.5), (int)(this.b/1.5));
+				color = new Color((int)(this.r/1.3), (int)(this.g/1.3), (int)(this.b/1.3));
 			}
 			g.setColor(color);			
 			int size = (int)((this.sizeRender*2f*scale)*Game.zoom);
@@ -76,8 +80,19 @@ public class Cell
 			int x = (int)((this.xRender - avgX) * Game.zoom) + GameFrame.size.width/2 - size/2;
 			int y = (int)((this.yRender - avgY) * Game.zoom) + GameFrame.size.height/2 - size/2;
 			
-			if(x<-size || x>GameFrame.size.width || y<-size || y>GameFrame.size.height)
+			if(x<-size-30 || x>GameFrame.size.width+30 || y<-size-30 || y>GameFrame.size.height+30)
 			{
+				for(int i=0;i<Game.cellsNumber;i++)
+				{
+					if(Game.cells[i] != null)
+					{
+						if(Game.cells[i].id == this.id)
+						{
+							System.out.println("Offscreen cell " + this.name);
+							Game.cells[i] = null;
+						}
+					}
+				}
 				return;
 			}
 			
@@ -110,26 +125,35 @@ public class Cell
 				}
 				g.fillPolygon(hexagon);
 			}
-			g.setColor(new Color(255,255,255));
 			
 			if(this.name.length()>0)
 			{
-				Font font = Main.frame.canvas.getFont();
+				Font font = Main.frame.canvas.fontCells;
 				BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 				FontMetrics fm = img.getGraphics().getFontMetrics(font);
 
 				int fontSize = fm.stringWidth(this.name);
 				
-				g.drawString(this.name, x + size/2 - fontSize/2, y + size/2);
-
-			
+				outlineString(g, this.name, x + size/2 - fontSize/2, y + size/2);
+		
 				String mass = this.mass+"";
 				
 				int massSize = fm.stringWidth(mass);
 			
-				g.drawString(mass, x + size/2 - massSize/2, y + size/2+17);
+				outlineString(g, mass, x + size/2 - massSize/2, y + size/2+17);
 			}
 		}
+	}
+
+	private void outlineString(Graphics2D g, String string, int x, int y)
+	{
+		g.setColor(new Color(0, 0, 0));
+		g.drawString(string, x-1, y);
+		g.drawString(string, x+1, y);
+		g.drawString(string, x, y-1);
+		g.drawString(string, x, y+1);
+		g.setColor(new Color(255, 255, 255));
+		g.drawString(string, x, y);
 	}
 
 	public void setColor(byte r, byte g, byte b)

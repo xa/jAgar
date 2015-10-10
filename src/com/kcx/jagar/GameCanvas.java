@@ -1,12 +1,13 @@
 package com.kcx.jagar;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.util.ConcurrentModificationException;
 
 import javax.swing.JPanel;
@@ -15,10 +16,14 @@ public class GameCanvas extends JPanel
 {
 	private static final long serialVersionUID = 5570080027060608254L;
 	private BufferedImage screen;
-
+	private Font font = new Font("Ubuntu", Font.BOLD, 30);
+	private Font fontLB = new Font("Ubuntu", Font.BOLD, 25);
+	public Font fontCells = new Font("Ubuntu", Font.BOLD, 18);
+	
 	public GameCanvas()
 	{
 		screen = new BufferedImage(GameFrame.size.width, GameFrame.size.height, BufferedImage.TYPE_INT_ARGB);
+		setFont(font);
 		setSize(GameFrame.size);
 		setVisible(true);
 	}
@@ -27,30 +32,54 @@ public class GameCanvas extends JPanel
 	{
 		Graphics ggg = screen.getGraphics();
 		Graphics2D g = ((Graphics2D)ggg);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(new Color(20,20,20));
+		g.setColor(new Color(255,255,255));
 		g.fillRect(0, 0, GameFrame.size.width, GameFrame.size.height);		
 
-		/*g.setColor(new Color(80,80,80));
+		g.setColor(new Color(220,220,220));
 		
-		int pX = 0, pY = 0;
-		if(Game.player != null)
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+		if(Game.player.size()>0)
 		{
-			int size = (int)((Math.round(Game.player.sizeRender*2))*Game.zoom);
-			pX = (int)(Game.player.xRender*Game.zoom+size);
-			pY = (int)(Game.player.yRender*Game.zoom+size);
-		
-			for(double i=Game.minSizeX;i<Game.maxSizeX;i+=100*Game.zoom)
-			{				
-				double x = i + 100 / Game.zoom;
-				g.drawLine((int)x-pX,(int)Game.minSizeY-pY,(int)x-pX,(int)Game.maxSizeY-pY);
-			}
-			for(double i=Game.minSizeY;i<Game.maxSizeY;i+=100*Game.zoom)
+			int size = 1;
+
+			float avgX = 0;
+			float avgY = 0;
+			
+			try
 			{
-				double y = i + 100 / Game.zoom;
-				g.drawLine((int)Game.minSizeX-pX,(int)y-pY,(int)Game.maxSizeX-pX,(int)y-pY);
+				for(Cell c : Game.player)
+				{
+					if(c != null)
+					{
+						avgX += c.xRender;
+						avgY += c.yRender;
+					}
+				}
+			}catch(ConcurrentModificationException e){}
+			
+			avgX /= Game.player.size();
+			avgY /= Game.player.size();			
+			
+            g.setStroke(new BasicStroke(2));
+            
+			for(double i=avgX-(GameFrame.size.width/2)/Game.zoom;i<avgX+(GameFrame.size.width/2)/Game.zoom;i+=100)
+			{				
+				i = (int)(i / 100)*100;
+				int x = (int)((i - avgX) * Game.zoom) + GameFrame.size.width/2 - size/2;
+				g.drawLine((int)x,(int)Game.minSizeY,(int)x,(int)Game.maxSizeY);
+			}
+			for(double i=avgY-(GameFrame.size.height/2)/Game.zoom;i<avgY+(GameFrame.size.height/2)/Game.zoom;i+=100)
+			{
+				i = (int)(i / 100)*100;
+				int y = (int)((i - avgY) * Game.zoom) + GameFrame.size.height/2 - size/2;
+				g.drawLine((int)Game.minSizeX,(int)y,(int)Game.maxSizeX,(int)y);
 			}			
-		}*/
+		}
+
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g.setFont(fontCells);
 
 		for(int i2=0;i2<Game.cellsNumber;i2++)
 		{
@@ -60,31 +89,53 @@ public class GameCanvas extends JPanel
 				cell.render(g, 1);
 				if(cell.mass>9)
 				{
-					cell.render(g, 0.82f);
+					cell.render(g, Math.max(1-1f/(cell.mass/10f),0.87f));
 				}
 			}
 		}		
+
+		g.setFont(font);
+
+		String scoreString = "Score: "+Game.score;
 		
+		g.setColor(new Color(0, 0, 0, 0.5f));
+		
+		g.fillRect(GameFrame.size.width-202, 10, 184, 265);
+		g.fillRect(7, GameFrame.size.height-85, getStringWidth(g, scoreString)+26, 47);
+
 		g.setColor(Color.WHITE);
 		
+		g.drawString(scoreString, 20, GameFrame.size.height-50);
+
 		int i=0;
 		
+		g.setFont(fontLB);
+		
+		g.drawString("Leaderboard", GameFrame.size.width-110-getStringWidth(g, "Leaderboard")/2, 40);
+		
+		g.setFont(fontCells);
+
 		for(String s : Game.leaderboard)
 		{
 			if(s != null)
 			{
-				g.drawString(s, GameFrame.size.width-140, 15+15*(i+1));
+				g.drawString(s, GameFrame.size.width-110-getStringWidth(g, s)/2, 40+22*(i+1));
 			}
 			i++;
 		}
-
-		g.drawString("Score: "+Game.score, 20, 30);
-		g.drawString("Player cells: "+Game.player.size(), 20, 45);		
-		
+				
 		g.dispose();
 		
 		Graphics gg = this.getGraphics();
 		gg.drawImage(screen, 0, 0, null);
 		gg.dispose();
+	}
+
+	private int getStringWidth(Graphics2D g, String string)
+	{
+		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		FontMetrics fm = img.getGraphics().getFontMetrics(g.getFont());
+
+		return fm.stringWidth(string);
 	}
 }

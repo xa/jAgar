@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -34,24 +35,29 @@ public class Game
 	public static int score;
 	private static SocketHandler socket;
 	
-	public static String serverIP = "ws://" + (JOptionPane.showInputDialog(null, "Ip", "localhost:443"));
-	public static String serverToken;
-	public static String nick = (JOptionPane.showInputDialog(null, "Nick", "JAgar"));
+	public static String serverIP = "ws://" + (JOptionPane.showInputDialog(null, "Ip (leave blank for official server)", ""));
+	public static String serverToken = "";
+	public static String nick = (JOptionPane.showInputDialog(null, "Nick", ""));
 	public static int bots = 0;
+	public static int spawnPlayer = -1;
+	public static HashMap<Integer, String> cellNames = new HashMap<Integer, String>();
 
 	public Game()
-	{	
-		try {
-			Scanner sc =  new Scanner(new URL("http://m.agar.io/").openStream(), "UTF-8").useDelimiter("\\A");
-			String[] result = sc.next().split("\n");
-//			serverIP = "ws://"+result[0];
-	//		serverToken = result[1].trim();
-			System.out.println(serverToken);
-			sc.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}			
-			
+	{
+		if(serverIP.equals("ws://"))
+		{
+			try {
+				Scanner sc =  new Scanner(new URL("http://m.agar.io/").openStream(), "UTF-8").useDelimiter("\\A");
+				String[] result = sc.next().split("\n");
+				serverIP = "ws://"+result[0];
+				serverToken = result[1].trim();
+				System.out.println(serverToken);
+				sc.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		}
+		
 		WebSocketClient clientt = new WebSocketClient();
 		this.socket = new SocketHandler();
 		new Thread(new Runnable() {				
@@ -114,17 +120,26 @@ public class Game
 	
 	public void tick() throws IOException
 	{
-		if(Game.player.size()==0)
+		if(socket != null && socket.session != null && socket.session.isOpen())
 		{
-			if(socket != null && socket.session != null)
+			if(spawnPlayer!=-1)
 			{
-				if(socket.session.isOpen())
+				spawnPlayer --;
+			}
+			if(spawnPlayer==0)
+			{
+	        	System.out.println("Spawning player "+Game.nick);
+	        	new PacketS000SetNick(Game.nick).write(socket.session);
+			}
+			if(Game.player.size()==0)
+			{
+				if(socket.session.isOpen() && spawnPlayer == -1)
 				{
 					Game.player.clear();
 					Game.cells = new Cell[Game.cells.length];
-					System.out.println("Reseting level. (death)");
-
-					new PacketS000SetNick(Game.nick).write(socket.session);
+					cellNames.clear();
+					System.out.println("Reseting level (death)");
+					spawnPlayer = 100;					
 				}
 			}
 		}
@@ -141,6 +156,7 @@ public class Game
 					{
 						if(c.id == i && !player.contains(c))
 						{
+							System.out.println("Centered cell " + c.name);
 							player.add(c);
 							toRemove.add(i);
 						}
@@ -221,8 +237,8 @@ public class Game
 				{
 					if (o1 == null && o2 == null)
 					{
-			            return 0;
-			        }
+						return 0;
+					}
 					if (o1 == null)
 					{
 						return 1;
@@ -230,7 +246,7 @@ public class Game
 					if (o2 == null)
 					{
 						return -1;
-				    }
+					}
 					return Float.compare(o1.size, o2.size);
 				}
 			});

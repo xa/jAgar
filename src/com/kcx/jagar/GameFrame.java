@@ -28,7 +28,7 @@ public class GameFrame extends JFrame implements MouseListener
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("JAgar r1 · Java Agar.io implementation");
+		setTitle("· JAgar ·");
 		//setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
 		pack();
 		setVisible(true);
