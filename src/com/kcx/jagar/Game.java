@@ -51,6 +51,7 @@ public class Game
 	public static int level = 0;
 	public static int exp = 0;
 	public static int maxExp = 1;
+	public static String mode = "";
 
 	public Game()
 	{
@@ -74,20 +75,27 @@ public class Game
 		
 		savedToken = loadToken();		
 		fbToken = (JOptionPane.showInputDialog(null, "Facebook Token", savedToken));
-		saveToken(fbToken);
+		mode = (JOptionPane.showInputDialog(null, "Game mode:\nffa\nteams\nexperimental\nparty", "ffa")).toLowerCase().replace("ffa", "");
 		
+		if(mode.length()>0)
+		{
+			mode = ":"+mode;
+		}
+		
+		saveToken(fbToken);
+
 		if(serverIP.equals("ws://"))
 		{
-			try {
-				Scanner sc =  new Scanner(new URL("http://m.agar.io/").openStream(), "UTF-8").useDelimiter("\\A");
-				String[] result = sc.next().split("\n");
-				serverIP = "ws://"+result[0];
-				serverToken = result[1].trim();
-				System.out.println(serverToken);
-				sc.close();
-			} catch (IOException e) {
+			String[] data;
+			try
+			{
+				data = ServerConnector.getServerData();
+				serverIP = "ws://" + data[0];
+				serverToken = data[1];
+			} catch (Exception e) {
 				e.printStackTrace();
-			}			
+				System.exit(-99);
+			}
 		}
 		
 		WebSocketClient clientt = new WebSocketClient();
