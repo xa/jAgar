@@ -27,7 +27,7 @@ public class Cell
 		this.x = x;
 		this.y = y;
 		this.size = size;
-		this.id = id;		
+		this.id = id;	
 		this.xRender = this.x;
 		this.yRender = this.y;
 		this.sizeRender = this.size;
@@ -81,18 +81,7 @@ public class Cell
 			int y = (int)((this.yRender - avgY) * Game.zoom) + GameFrame.size.height/2 - size/2;
 			
 			if(x<-size-30 || x>GameFrame.size.width+30 || y<-size-30 || y>GameFrame.size.height+30)
-			{
-				for(int i=0;i<Game.cellsNumber;i++)
-				{
-					if(Game.cells[i] != null)
-					{
-						if((Game.cells[i].name.length()>0 || Game.cells[i].mass>10) && Game.cells[i].id == this.id)
-						{
-							System.out.println("Offscreen cell " + this.name);
-							Game.cells[i] = null;
-						}
-					}
-				}
+			{				
 				return;
 			}
 			

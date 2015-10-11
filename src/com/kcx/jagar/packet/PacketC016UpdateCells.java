@@ -35,15 +35,13 @@ public class PacketC016UpdateCells
 				}
 			}
 			offset+=8;
-		}
-		
-		try
-		{
-			offset = addCell(offset, b);
-		}catch(IndexOutOfBoundsException e){}
+		}		
+		offset = addCell(offset, b);
+						
+		offset+=4;
 		
 		int destroyCells = b.getInt(offset);
-		
+
 		offset+=4;
 		
 		for(int i=0;i<destroyCells;i++)
@@ -72,6 +70,7 @@ public class PacketC016UpdateCells
 	private int addCell(int offset, ByteBuffer b)
 	{
 		int cellID = b.getInt(offset);
+		if(cellID == 0)return offset;
 		int x = b.getInt(offset+4);
 		int y = b.getInt(offset+8);
 		short size = b.getShort(offset+12);
@@ -95,11 +94,21 @@ public class PacketC016UpdateCells
 		}
 		
 		byte flags = b.get(offset+17);
-		boolean virus = false;
-		if(flags==1){offset+=0;virus = true;}
-		if(flags==2){offset+=8;}
-		if(flags==3){offset+=16;}
-		
+		boolean virus = (flags & 1)==1;
+
+        if ((flags&2)==1)
+        {
+            offset += 4;
+        }
+        if ((flags&4)==1)
+        {
+            offset += 8;
+        }
+        if ((flags&8)==1)
+        {
+            offset += 16;
+        }		
+        
 		offset+=18;
 		String name = "";
         while(b.getShort(offset)!=0)
@@ -110,7 +119,7 @@ public class PacketC016UpdateCells
         
 		if(!flag)
 		{
-			System.out.println("Adding new cell " + cellID + " <" + name + ">");
+			System.out.println("Adding new cell " + cellID + " <" + name + ">" + " /"+Game.cellsNumber+"/");
 			Cell cell = new Cell(x, y, size, cellID);
 			if(name.length()>0)
 			{
@@ -142,6 +151,7 @@ public class PacketC016UpdateCells
 				}
 			}
 		}
+		
 		offset+=2;
 		if(b.getInt(offset)!=0)
 		{

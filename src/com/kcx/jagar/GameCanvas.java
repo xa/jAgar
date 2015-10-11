@@ -97,15 +97,24 @@ public class GameCanvas extends JPanel
 		g.setFont(font);
 
 		String scoreString = "Score: "+Game.score;
+		String levelString = "Level "+Game.level+" ("+(int)(((float)Game.exp/(float)Game.maxExp)*100)+"%)";
 		
 		g.setColor(new Color(0, 0, 0, 0.5f));
 		
 		g.fillRect(GameFrame.size.width-202, 10, 184, 265);
 		g.fillRect(7, GameFrame.size.height-85, getStringWidth(g, scoreString)+26, 47);
-
+		if(Game.level>0)
+		{
+			g.fillRect(7, 10, getStringWidth(g, levelString)+26, 47);
+		}
 		g.setColor(Color.WHITE);
 		
 		g.drawString(scoreString, 20, GameFrame.size.height-50);
+
+		if(Game.level>0)
+		{
+			g.drawString(levelString, 20, 45);
+		}
 
 		int i=0;
 		
@@ -114,7 +123,7 @@ public class GameCanvas extends JPanel
 		g.drawString("Leaderboard", GameFrame.size.width-110-getStringWidth(g, "Leaderboard")/2, 40);
 		
 		g.setFont(fontCells);
-
+		
 		for(String s : Game.leaderboard)
 		{
 			if(s != null)

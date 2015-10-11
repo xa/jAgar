@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 
-public class GameFrame extends JFrame implements MouseListener
+public class GameFrame extends JFrame
 {
 	private static long startTime = System.currentTimeMillis();
 	private static long frames = 0;
@@ -22,7 +22,8 @@ public class GameFrame extends JFrame implements MouseListener
 		setMinimumSize(size);
 		setMaximumSize(size);
 		setPreferredSize(size);
-		addMouseListener(this);
+		addMouseListener(new MouseListenerr());
+		addKeyListener(new KeyboardListener());
 		canvas = new GameCanvas();
 		getContentPane().add(canvas);		
 		setResizable(false);
@@ -57,17 +58,6 @@ public class GameFrame extends JFrame implements MouseListener
 		int x = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x);
 		int y = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-24);
 	    return new Point(x, y);
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		Game.pressMouse(e.getX(), e.getY(), e.getButton());				
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-		Game.releaseMouse(e.getX(), e.getY(), e.getButton());		
 	}
 
 	public void mouseClicked(MouseEvent e) {}

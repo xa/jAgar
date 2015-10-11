@@ -7,11 +7,11 @@ import java.nio.ByteOrder;
 
 import com.kcx.jagar.Game;
 
-public class PacketS080Auth
+public class PacketS081FacebookAuth
 {
 	public String token = "";
 	
-	public PacketS080Auth(String token)
+	public PacketS081FacebookAuth(String token)
 	{
 		this.token = token;
 	}
@@ -36,7 +36,7 @@ public class PacketS080Auth
 	public void write() throws IOException
 	{
 		ByteBuffer buffer = ByteBuffer.allocate(this.token.getBytes("UTF-8").length+1);
-		buffer.put(0, (byte)80);
+		buffer.put(0, (byte)81);
 		
 		byte[] bytes = nameBytes();
 		
@@ -48,7 +48,7 @@ public class PacketS080Auth
 			offset++;
 		}
 		
-		System.out.println("Sending token "+this.token);
+		System.out.println("Sending fb token "+this.token);
 		
 		Game.socket.session.getRemote().sendBytes(buffer);
 	}

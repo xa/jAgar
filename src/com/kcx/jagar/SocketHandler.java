@@ -17,6 +17,7 @@ import com.kcx.jagar.packet.PacketC020ResetLevel;
 import com.kcx.jagar.packet.PacketC032CenterCell;
 import com.kcx.jagar.packet.PacketC049Leaderboard;
 import com.kcx.jagar.packet.PacketC064MapSize;
+import com.kcx.jagar.packet.PacketC081Exp;
 import com.kcx.jagar.packet.PacketS000SetNick;
 import com.kcx.jagar.packet.PacketS016Move;
 import com.kcx.jagar.packet.PacketS080Auth;
@@ -62,7 +63,7 @@ public class SocketHandler
         buf.putInt(1, 0x33182283);
         session.getRemote().sendBytes(buf);
 
-        new PacketS080Auth(Game.serverToken).write(session);
+        new PacketS080Auth(Game.serverToken).write();
 
         if(!this.bot)
         {
@@ -79,13 +80,13 @@ public class SocketHandler
         { 
         	if(System.currentTimeMillis() - oldTime>1500)
         	{
-        		new PacketS000SetNick(Game.nick + " bot").write(session);
+        		new PacketS000SetNick(Game.nick + " bot").write();
         		{
         			float x = (float) Game.player.get(0).x;
     				float y = (float) Game.player.get(0).y;
     				x += (float) (GameFrame.mouseX - GameFrame.size.width/2);
     				y += (float) (GameFrame.mouseY - GameFrame.size.height/2);
-    				(new PacketS016Move(x,y)).write(session);
+    				(new PacketS016Move(x,y)).write();
         		}
                 buf = ByteBuffer.allocate(5);
     	        buf.put(0, (byte)17);
@@ -124,6 +125,10 @@ public class SocketHandler
 	        if(id == 20)
 	        {
 	        	new PacketC020ResetLevel(frame.getPayload());
+	        }
+	        if(id == 81)
+	        {
+	        	new PacketC081Exp(frame.getPayload());
 	        }
 		}
     }

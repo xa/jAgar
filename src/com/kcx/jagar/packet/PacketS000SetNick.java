@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.eclipse.jetty.websocket.api.Session;
+import com.kcx.jagar.Game;
 
-public class PacketS000SetNick extends Packet
+public class PacketS000SetNick
 {
 	public String name = "JAgar";
 	
@@ -24,7 +24,7 @@ public class PacketS000SetNick extends Packet
 	    return bytes;
 	}
 	
-	public void write(Session session) throws IOException
+	public void write() throws IOException
 	{
 		ByteBuffer buffer = ByteBuffer.allocate(this.name.toCharArray().length*2+1);
 		buffer.put(0, (byte)0);
@@ -39,6 +39,6 @@ public class PacketS000SetNick extends Packet
 			offset++;
 		}
 		
-        session.getRemote().sendBytes(buffer);
+		Game.socket.session.getRemote().sendBytes(buffer);
 	}
 }
