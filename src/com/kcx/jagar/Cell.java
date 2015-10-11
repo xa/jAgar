@@ -37,7 +37,7 @@ public class Cell
 	{
 		this.xRender -= (this.xRender - x)/5f;
 		this.yRender -= (this.yRender - y)/5f;
-		this.sizeRender -= (this.sizeRender - size)/15f;
+		this.sizeRender -= (this.sizeRender - size)/9f;
 		this.mass = Math.round((this.sizeRender * this.sizeRender) / 100);
 		this.rotation += (1f/(Math.max(this.mass,20)*2));
 		
@@ -86,7 +86,7 @@ public class Cell
 				{
 					if(Game.cells[i] != null)
 					{
-						if(Game.cells[i].id == this.id)
+						if((Game.cells[i].name.length()>0 || Game.cells[i].mass>10) && Game.cells[i].id == this.id)
 						{
 							System.out.println("Offscreen cell " + this.name);
 							Game.cells[i] = null;
@@ -147,7 +147,7 @@ public class Cell
 
 	private void outlineString(Graphics2D g, String string, int x, int y)
 	{
-		g.setColor(new Color(0, 0, 0));
+		g.setColor(new Color(70, 70, 70));
 		g.drawString(string, x-1, y);
 		g.drawString(string, x+1, y);
 		g.drawString(string, x, y-1);

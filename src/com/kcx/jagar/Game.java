@@ -228,7 +228,7 @@ public class Game
 			}
 		}
 		
-		if(System.currentTimeMillis()%100 == 0)
+		if(System.currentTimeMillis()%30 == 0)
 		{
 			Arrays.sort(cells, new Comparator<Cell>()
 			{	
