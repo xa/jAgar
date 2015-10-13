@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 
 public class GameFrame extends JFrame
@@ -29,7 +28,7 @@ public class GameFrame extends JFrame
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("· JAgar ·");
+		setTitle("· jAgar ·");
 		//setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
 		pack();
 		setVisible(true);

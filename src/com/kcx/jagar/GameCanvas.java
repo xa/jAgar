@@ -37,8 +37,15 @@ public class GameCanvas extends JPanel
 
 		g.setColor(new Color(220,220,220));
 		
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+		if(Game.fps < 30)
+		{
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+		}else
+		{
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		}
 
+		
 		if(Game.player.size()>0)
 		{
 			int size = 1;
@@ -76,8 +83,6 @@ public class GameCanvas extends JPanel
 				g.drawLine((int)Game.minSizeX,(int)y,(int)Game.maxSizeX,(int)y);
 			}			
 		}
-
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g.setFont(fontCells);
 

@@ -38,6 +38,10 @@ public class KeyboardListener implements KeyListener
 					{
 						new PacketS021EjectMass().write();
 					}
+					if(e.getKeyCode() == KeyEvent.VK_T)
+					{
+						Game.rapidEject = true;
+					}
 				}				
 			}
 		}catch(IOException ioEx){ioEx.printStackTrace();}
@@ -55,6 +59,10 @@ public class KeyboardListener implements KeyListener
 					if(e.getKeyCode() == KeyEvent.VK_Q)
 					{
 						new PacketS019QRelease().write();
+					}
+					if(e.getKeyCode() == KeyEvent.VK_T)
+					{
+						Game.rapidEject = false;
 					}
 				}
 			}

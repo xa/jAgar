@@ -5,14 +5,15 @@ public class GameThread extends Thread implements Runnable
 	@Override
 	public void run()
 	{
-		long time = 0;
 		while(true)
 		{
-			if(System.currentTimeMillis() - time > 5)
+			long preTickTime = System.currentTimeMillis();
+			Main.updateGame();
+			if(System.currentTimeMillis() % 100 == 0)
 			{
-				Main.updateGame();
-				time = System.currentTimeMillis();
+				Game.fps = 1000 / (System.currentTimeMillis() - preTickTime);
+				Main.frame.setTitle("· jAgar · " + Game.fps + "fps");
 			}
-		}
+        }
 	}
 }

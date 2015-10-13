@@ -35,21 +35,24 @@ public class PacketS081FacebookAuth
 	
 	public void write() throws IOException
 	{
-		ByteBuffer buffer = ByteBuffer.allocate(this.token.getBytes("UTF-8").length+1);
-		buffer.put(0, (byte)81);
-		
-		byte[] bytes = nameBytes();
-		
-		int offset = 1;
-		
-		for(byte b : bytes)
+		if(Game.socket.session.isOpen())
 		{
-			buffer.put(offset, b);
-			offset++;
+			ByteBuffer buffer = ByteBuffer.allocate(this.token.getBytes("UTF-8").length+1);
+			buffer.put(0, (byte)81);
+			
+			byte[] bytes = nameBytes();
+			
+			int offset = 1;
+			
+			for(byte b : bytes)
+			{
+				buffer.put(offset, b);
+				offset++;
+			}
+			
+			System.out.println("Sending fb token "+this.token);
+			
+			Game.socket.session.getRemote().sendBytes(buffer);
 		}
-		
-		System.out.println("Sending fb token "+this.token);
-		
-		Game.socket.session.getRemote().sendBytes(buffer);
 	}
 }

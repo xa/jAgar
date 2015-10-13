@@ -63,30 +63,27 @@ public class SocketHandler
         buf.putInt(1, 0x33182283);
         session.getRemote().sendBytes(buf);
 
-        new PacketS080Auth(Game.serverToken).write();
 
         if(!this.bot)
         {
+            new PacketS080Auth(Game.serverToken).write();
         	Game.spawnPlayer = 100;
         }
         if(this.bot)
         {
-        	//System.out.println("Spawning bot "+Game.nick);
-        	//new PacketS000SetNick(Game.nick + " bot").write(session);
+        	System.out.println("Spawning bot "+Game.nick);
         }
         
         long oldTime = 0;        
-        while(true && this.bot && session.isOpen() && Game.player.get(0)!=null)
+        while(true && this.bot && session.isOpen() && Game.player.size()>0)
         { 
-        	if(System.currentTimeMillis() - oldTime>1500)
+        	if(System.currentTimeMillis() - oldTime>1000)
         	{
-        		new PacketS000SetNick(Game.nick + " bot").write();
+        		new PacketS000SetNick(Game.nick + " bot").write(session);
         		{
         			float x = (float) Game.player.get(0).x;
     				float y = (float) Game.player.get(0).y;
-    				x += (float) (GameFrame.mouseX - GameFrame.size.width/2);
-    				y += (float) (GameFrame.mouseY - GameFrame.size.height/2);
-    				(new PacketS016Move(x,y)).write();
+    				(new PacketS016Move(x,y)).write(session);
         		}
                 buf = ByteBuffer.allocate(5);
     	        buf.put(0, (byte)17);

@@ -22,6 +22,7 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import com.kcx.jagar.packet.PacketS000SetNick;
 import com.kcx.jagar.packet.PacketS016Move;
+import com.kcx.jagar.packet.PacketS021EjectMass;
 import com.kcx.jagar.packet.PacketS081FacebookAuth;
 
 public class Game
@@ -52,6 +53,8 @@ public class Game
 	public static int exp = 0;
 	public static int maxExp = 1;
 	public static String mode = "";
+	public static long fps;
+	public static boolean rapidEject;
 
 	public Game()
 	{
@@ -75,7 +78,8 @@ public class Game
 		
 		savedToken = loadToken();		
 		fbToken = (JOptionPane.showInputDialog(null, "Facebook Token", savedToken));
-		mode = (JOptionPane.showInputDialog(null, "Game mode:\nffa\nteams\nexperimental\nparty", "ffa")).toLowerCase().replace("ffa", "");
+	
+		mode = (JOptionPane.showInputDialog(null, "Game mode:\n\nffa\nteams\nexperimental\nparty", "ffa")).toLowerCase().replace("ffa", "");
 		
 		if(mode.length()>0)
 		{
@@ -125,7 +129,7 @@ public class Game
 		    	boolean stop=true;
 		        while(stop)
 		        {
-		        	if(System.currentTimeMillis()-xx>100 && yy < bots)
+		        	if(System.currentTimeMillis()-xx>150 && yy < bots)
 		        	{
 		        		yy++;
 				        new Thread(new Runnable() {				
@@ -210,12 +214,13 @@ public class Game
 			if(spawnPlayer==0)
 			{
 	        	System.out.println("Spawning player "+Game.nick);
-	        	new PacketS000SetNick(Game.nick).write();
+	        	new PacketS000SetNick(Game.nick).write(socket.session);
 			}
 			if(Game.player.size()==0)
 			{
 				if(socket.session.isOpen() && spawnPlayer == -1)
 				{
+					score = 0;
 					Game.player.clear();
 					Game.cells = new Cell[Game.cells.length];
 					cellNames.clear();
@@ -254,11 +259,16 @@ public class Game
 		if(socket.session != null && player.size()>0)
 		{		
 			float totalSize = 0;
-			score = 0;
+			int newScore = 0;
 			for(Cell c : player)
 			{
 				totalSize+=c.size;
-				score+=c.mass;
+				newScore+=(c.size * c.size) / 100;
+			}
+			
+			if(newScore > score)
+			{
+				score = newScore;
 			}
 			
 			zoomm = GameFrame.size.height/(1024 / Math.pow(Math.min(64.0 / totalSize, 1), 0.4));
@@ -296,7 +306,12 @@ public class Game
 				y += (float) ((GameFrame.mouseY - GameFrame.size.height/2) / zoom);
 				followX = x;
 				followY = y;
-				(new PacketS016Move(x,y)).write();
+				(new PacketS016Move(x,y)).write(socket.session);
+				
+				if(rapidEject)
+				{
+					new PacketS021EjectMass().write();
+				}
 			}
 		}
 		
@@ -314,7 +329,7 @@ public class Game
 		{
 			sortCells();
 			sortTimer = 0;
-		}
+		}		
 	}
 	
 	public static void pressMouse(int x, int y, int button)

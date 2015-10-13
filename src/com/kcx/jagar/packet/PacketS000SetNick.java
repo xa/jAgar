@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.eclipse.jetty.websocket.api.Session;
+
 import com.kcx.jagar.Game;
 
 public class PacketS000SetNick
@@ -24,7 +26,7 @@ public class PacketS000SetNick
 	    return bytes;
 	}
 	
-	public void write() throws IOException
+	public void write(Session s) throws IOException
 	{
 		ByteBuffer buffer = ByteBuffer.allocate(this.name.toCharArray().length*2+1);
 		buffer.put(0, (byte)0);
@@ -39,6 +41,6 @@ public class PacketS000SetNick
 			offset++;
 		}
 		
-		Game.socket.session.getRemote().sendBytes(buffer);
+		s.getRemote().sendBytes(buffer);
 	}
 }
