@@ -104,6 +104,15 @@ public class GameCanvas extends JPanel
 		String scoreString = "Score: "+Game.score;
 		String levelString = "Level "+Game.level+" ("+(int)(((float)Game.exp/(float)Game.maxExp)*100)+"%)";
 		
+		if(Game.isPlaybacking)
+		{
+			scoreString = "Playback... Press R to respawn. Hold LMB to speed up RMB to rewind.";
+			g.setColor(new Color(0, 0, 0, 0.5f));
+			g.fillRect(0, 0, GameFrame.size.width, 10);
+			g.setColor(new Color(1, 0, 0, 0.5f));
+			g.fillRect(0, 0, (int)(((float)Game.playbackTime/(float)Game.maxPlayback)*GameFrame.size.width), 10);
+		}
+
 		g.setColor(new Color(0, 0, 0, 0.5f));
 		
 		g.fillRect(GameFrame.size.width-202, 10, 184, 265);

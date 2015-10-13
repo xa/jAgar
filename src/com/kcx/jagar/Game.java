@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
+import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
@@ -46,6 +47,8 @@ public class Game
 	public static String nick = (JOptionPane.showInputDialog(null, "Nick", "jAgar"));
 	private String fbToken = "";
 	private String workingDirectory = "";
+	private static boolean playbackRewind;
+	public static int maxPlayback;
 	public static int bots = 0;
 	public static int spawnPlayer = -1;
 	public static HashMap<Integer, String> cellNames = new HashMap<Integer, String>();
@@ -53,9 +56,14 @@ public class Game
 	public static int exp = 0;
 	public static int maxExp = 1;
 	public static String mode = "";
-	public static long fps;
+	public static long fps = 60;
 	public static boolean rapidEject;
-
+	public static HashMap<Integer, ArrayList<ByteBuffer>> playback = new HashMap<Integer, ArrayList<ByteBuffer>>();
+	public static int playbackTime = 0;
+	public static boolean isPlaybacking = false;
+	private static float playbackSpeed = 0;
+	private static boolean playbackSpeeding;
+	
 	public Game()
 	{
 		String OS = (System.getProperty("os.name")).toUpperCase();
@@ -99,8 +107,10 @@ public class Game
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(-99);
-			}
+			}		
 		}
+		
+		spawnPlayer = 100;
 		
 		WebSocketClient clientt = new WebSocketClient();
 		this.socket = new SocketHandler();
@@ -213,23 +223,91 @@ public class Game
 			}
 			if(spawnPlayer==0)
 			{
-	        	System.out.println("Spawning player "+Game.nick);
+	    		System.out.println("Reseting level (death)");
 	        	new PacketS000SetNick(Game.nick).write(socket.session);
 			}
 			if(Game.player.size()==0)
 			{
 				if(socket.session.isOpen() && spawnPlayer == -1)
-				{
-					score = 0;
-					Game.player.clear();
-					Game.cells = new Cell[Game.cells.length];
-					cellNames.clear();
-					System.out.println("Reseting level (death)");
-					spawnPlayer = 100;					
+				{					
+					if(!isPlaybacking)
+					{
+						score = 0;
+						Game.player.clear();
+						Game.cells = new Cell[Game.cells.length];
+						cellsNumber=0;
+						cellNames.clear();
+
+						maxPlayback=playbackTime;
+						playbackTime=0;
+						isPlaybacking=true;
+					}
 				}
 			}
 		}
 		
+		if(isPlaybacking)
+		{
+			if(playbackRewind)
+			{
+				if(playback.get(playbackTime) != null)
+				{
+					for(ByteBuffer b : playback.get(playbackTime))
+					{
+						socket.handlePacket(b);
+					}
+				}				
+			}else
+			{
+				for(int i=playbackTime;i<playbackTime+(playbackSpeed+1);i++)
+				{
+					if(playback.get(i) != null)
+					{
+						for(ByteBuffer b : playback.get(i))
+						{
+							socket.handlePacket(b);
+						}
+					}
+				}
+			}
+	    	playbackTime += 1+playbackSpeed;
+	    	if(playbackTime<0)
+	    	{
+	    		playbackTime = maxPlayback;	    		
+	    	}
+	    	if(playbackTime > maxPlayback && maxPlayback > 100)
+	    	{	    
+    			playbackTime = 0;
+				score = 0;
+				Game.player.clear();
+				Game.cells = new Cell[Game.cells.length];
+				cellsNumber=0;
+				cellNames.clear();    			
+	    	}
+	    	if(playbackTime > maxPlayback && maxPlayback <= 100)
+	    	{	    
+    			respawn();
+	    	}
+		}
+		
+		if(playbackSpeeding)
+		{
+			playbackSpeed += 0.03;
+		}
+
+		if(playbackRewind)
+		{
+			playbackSpeed = -2;
+		}
+
+		if(player.size()>0)
+		{
+			if(!isPlaybacking)
+			{
+				Game.playbackTime++;
+			}
+		}
+
 		ArrayList<Integer> toRemove = new ArrayList<Integer>();
 		
 		for(int i : playerID)
@@ -334,10 +412,34 @@ public class Game
 	
 	public static void pressMouse(int x, int y, int button)
 	{		
+		if(Game.isPlaybacking)
+		{
+			if(button==1)
+			{
+				playbackSpeeding = true;
+			}
+			if(button==3)
+			{
+				playbackRewind = true;
+			}
+		}
 	}
 
 	public static void releaseMouse(int x, int y, int button)
 	{
+		if(Game.isPlaybacking)
+		{
+			if(button==1)
+			{
+				playbackSpeeding = false;
+				playbackSpeed = 0;
+			}
+			if(button==3)
+			{
+				playbackRewind = false;
+				playbackSpeed = 0;
+			}
+		}
 	}
 
 	public void afterRender() {}
@@ -374,5 +476,17 @@ public class Game
 				return Float.compare(o1.size, o2.size);
 			}
 		});
+	}
+
+	public static void respawn()
+	{
+		if(spawnPlayer==-1)
+		{
+    		playback.clear();
+    		playbackTime = 0;
+    		isPlaybacking = false;
+    		maxPlayback = 0;
+			spawnPlayer=100;
+		}
 	}
 }

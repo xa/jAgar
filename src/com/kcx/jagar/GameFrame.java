@@ -58,8 +58,4 @@ public class GameFrame extends JFrame
 		int y = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-24);
 	    return new Point(x, y);
 	}
-
-	public void mouseClicked(MouseEvent e) {}
-	public void mouseEntered(MouseEvent e) {}
-	public void mouseExited(MouseEvent e) {}
 }

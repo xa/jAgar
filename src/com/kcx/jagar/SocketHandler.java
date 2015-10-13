@@ -2,6 +2,7 @@ package com.kcx.jagar;
  
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -100,33 +101,56 @@ public class SocketHandler
 	@OnWebSocketFrame
     public void onPacket(Frame frame)
 	{
-		if(!bot && session.isOpen())
+		if(!bot && (session.isOpen() || Game.isPlaybacking))
 		{
-	        byte id = frame.getPayload().get(0);
-	        if(id == 16)
+			if(frame==null) return;
+	        if(!Game.isPlaybacking)
 	        {
-	        	new PacketC016UpdateCells(frame.getPayload());
-	        }
-	        if(id == 49)
-	        {
-	        	new PacketC049Leaderboard(frame.getPayload());
-	        }
-	        if(id == 32)
-	        {
-	        	new PacketC032CenterCell(frame.getPayload());
-	        }
-	        if(id == 64)
-	        {
-	        	new PacketC064MapSize(frame.getPayload());
-	        }
-	        if(id == 20)
-	        {
-	        	new PacketC020ResetLevel(frame.getPayload());
-	        }
-	        if(id == 81)
-	        {
-	        	new PacketC081Exp(frame.getPayload());
+	        	ByteBuffer payload = ByteBuffer.allocate(frame.getPayload().capacity()).put(frame.getPayload());
+	        	if(Game.playback.containsKey(Game.playbackTime))
+	        	{
+	        		ArrayList<ByteBuffer> array = Game.playback.get(Game.playbackTime);
+	        		if(array == null)return;
+	        		array.add(payload);
+	        		Game.playback.put(Game.playbackTime, array);	        		
+	        	}else
+	        	{
+	        		ArrayList<ByteBuffer> array = new ArrayList<ByteBuffer>();
+	        		array.add(payload);
+	        		Game.playback.put(Game.playbackTime, array);	        		
+	        	}
+	        	handlePacket(frame.getPayload());
 	        }
 		}
     }
+
+	public void handlePacket(ByteBuffer b)
+	{
+		if(b==null) return;
+        byte id = b.get(0);        
+        if(id == 16)
+        {
+        	new PacketC016UpdateCells(b);
+        }
+        if(id == 49)
+        {
+        	new PacketC049Leaderboard(b);
+        }
+        if(id == 32)
+        {
+        	new PacketC032CenterCell(b);
+        }
+        if(id == 64)
+        {
+        	new PacketC064MapSize(b);
+        }
+        if(id == 20)
+        {
+        	new PacketC020ResetLevel(b);
+        }
+        if(id == 81)
+        {
+        	new PacketC081Exp(b);
+        }
+	}
 }

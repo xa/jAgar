@@ -36,6 +36,7 @@ public class PacketC016UpdateCells
 			}
 			offset+=8;
 		}		
+		
 		offset = addCell(offset, b);
 						
 		offset+=4;
